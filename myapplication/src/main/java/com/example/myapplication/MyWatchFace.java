@@ -258,12 +258,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
-            String text = mAmbient
-                    ? String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
-                    mCalendar.get(Calendar.MINUTE))
-                    : String.format("%d:%02d:%02d", mCalendar.get(Calendar.HOUR),
-                    mCalendar.get(Calendar.MINUTE), mCalendar.get(Calendar.SECOND));
+            String text = mAmbient ? String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
+                            mCalendar.get(Calendar.MINUTE))
+                    : String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
+                    mCalendar.get(Calendar.MINUTE));
+
+                    String test = "54";
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
+            canvas.drawText(test, mXOffset, mYOffset, mTextPaint);
         }
 
         /**
