@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -36,9 +38,14 @@ import android.view.WindowInsets;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
+import static android.R.attr.centerX;
+import static android.R.attr.textColor;
 
 /**
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
@@ -89,6 +96,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint;
         Paint mTextPaint;
+        Paint mImagePaint;
         boolean mAmbient;
         Calendar mCalendar;
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
@@ -100,6 +108,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         };
         float mXOffset;
         float mYOffset;
+        float mLineHeight;
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -119,12 +128,15 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .build());
             Resources resources = MyWatchFace.this.getResources();
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
+            mLineHeight = resources.getDimension(R.dimen.digital_line_height);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.background));
 
             mTextPaint = new Paint();
             mTextPaint = createTextPaint(resources.getColor(R.color.digital_text));
+
+            mImagePaint = new Paint();
 
             mCalendar = Calendar.getInstance();
         }
@@ -254,18 +266,24 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
             }
 
+            float x = mXOffset;
             // Draw H:MM in ambient mode or H:MM:SS in interactive mode.
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
-            String text = mAmbient ? String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
+            String time = mAmbient ? String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
                             mCalendar.get(Calendar.MINUTE))
                     : String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
                     mCalendar.get(Calendar.MINUTE));
 
-                    String test = "54";
-            canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
-            canvas.drawText(test, mXOffset, mYOffset, mTextPaint);
+            String date = new SimpleDateFormat("MM/dd").format(mCalendar.getTime());;
+
+            Bitmap mPicture = BitmapFactory.decodeResource(getBaseContext().getResources(), R.drawable.ic_clear);
+            mPicture = Bitmap.createScaledBitmap(mPicture, 75, 75, false);
+
+            canvas.drawText(time, centerX, mYOffset, mTextPaint);
+            canvas.drawText(date, centerX, mYOffset + mLineHeight, mTextPaint);
+            canvas.drawBitmap(mPicture, centerX, mYOffset - mLineHeight, mBackgroundPaint);
         }
 
         /**
