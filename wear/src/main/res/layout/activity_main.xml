@@ -1,14 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wearable.view.WatchViewStub
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/watch_view_stub"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:rectLayout="@layout/rect_activity_main"
-    app:roundLayout="@layout/round_activity_main"
-    tools:context="com.example.wear.MainActivity"
-    tools:deviceIds="wear"
+    android:orientation="vertical"
+    android:gravity="center"
     android:background="@android:color/holo_blue_light">
-</android.support.wearable.view.WatchViewStub>
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15:50"
+        android:textStyle="bold"
+        android:textSize="25sp"/>
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FRI, JAN 14, 2016"
+        android:layout_margin="5dp"/>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/image"
+            android:src="@drawable/ic_clear"/>
+        <TextView
+            android:id="@+id/highTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="25"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:textSize="25sp"/>
+        <TextView
+            android:id="@+id/lowTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="25"
+            android:gravity="center"
+            android:textSize="25sp"/>
+    </LinearLayout>
+
+</LinearLayout>
