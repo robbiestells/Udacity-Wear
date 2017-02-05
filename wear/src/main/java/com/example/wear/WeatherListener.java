@@ -25,7 +25,6 @@ import com.google.android.gms.wearable.WearableListenerService;
 public class WeatherListener extends WearableListenerService {
     public final String LOG_TAG = WeatherListener.class.getSimpleName();
 
-    public static final String UNITS = "units";
     public static final String HIGH_TEMP = "highTempp";
     public static final String LOW_TEMP = "lowTemp";
     public static final String ICON = "iconID";
