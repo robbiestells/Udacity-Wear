@@ -118,16 +118,6 @@ public class WatchFace extends CanvasWatchFaceService {
             }
         };
 
-//        private final BroadcastReceiver mWeatherReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                getWeatherData(intent);
-//                setWeatherIcon(intent);
-//                mDateTextView.setText(mFormatedDateString);
-//                invalidate();
-//            }
-//
-//        };
         float mXOffset;
         float mYOffset;
         boolean mLowBitAmbient;
@@ -141,7 +131,6 @@ public class WatchFace extends CanvasWatchFaceService {
             setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
-                    .setShowSystemUiTime(true)
                     .setAcceptsTapEvents(true)
                     .build());
             resources = WatchFace.this.getResources();
@@ -163,7 +152,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
          //  int bitmapId = getIconResourceForWeatherCondition(R.drawable.ic_clear);
            // bitmap = getIcon(WatchFace.this, bitmapId);
-            bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_cc_clear);
+            bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_clear);
             mCalendar = Calendar.getInstance();
 
             Intent intent = new Intent(WatchFace.this, WeatherListener.class);
@@ -292,7 +281,7 @@ public class WatchFace extends CanvasWatchFaceService {
             canvas.drawText(temps, bounds.width()/2 - temps.length(), bounds.height()/2 + mTimePaint.getTextSize(), mMaxTempPaint);
 
             if (bitmap != null) {
-                canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - mTimePaint.getTextSize(), mBackgroundPaint);
+                canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
             }
 
         }
