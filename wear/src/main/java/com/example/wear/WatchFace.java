@@ -336,10 +336,7 @@ public class WatchFace extends CanvasWatchFaceService {
                 mIconImageView.setVisibility(View.INVISIBLE);
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
-                mWearLayout.measure(mSpecW, mSpecH);
-                mWearLayout.layout(0, 0, mWearLayout.getMeasuredWidth(), mWearLayout.getMeasuredHeight());
-                mDateTextView.setVisibility(View.VISIBLE);
-                mIconImageView.setVisibility(View.VISIBLE);
+
                 canvas.drawColor(mBackgroundPaint.getColor());
 
             }
@@ -347,12 +344,13 @@ public class WatchFace extends CanvasWatchFaceService {
                     mCalendar.get(Calendar.MINUTE))
                     : String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
                     mCalendar.get(Calendar.MINUTE));
-            mWearLayout.draw(canvas);
-            canvas.drawText(time, centerX, mYOffset, mTextPaint);
 
-            String tempHight = String.valueOf(highTemp);
-            canvas.drawText(tempHight,
-                    centerX, mYOffset, mTextPaint);
+            canvas.drawText(time, centerX, centerY, mTextPaint);
+
+            //String tempHight = String.valueOf(highTemp);
+            String tempHigh = String.valueOf("18");
+            canvas.drawText(tempHigh,
+                    centerX, centerY, mTextPaint);
            // canvas.drawBitmap(icon, centerX, mYOffset, mBackgroundPaint);
         }
 
