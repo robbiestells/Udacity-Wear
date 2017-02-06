@@ -138,8 +138,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.background));
-//
-//            mTimePaint = new Paint();
+
             mTimePaint = createTextPaint(resources.getColor(R.color.digital_text));
             mTimePaint.setTextAlign(Paint.Align.CENTER);
             mTimePaint.setColor(resources.getColor(R.color.white));
@@ -150,9 +149,11 @@ public class WatchFace extends CanvasWatchFaceService {
             mMinTempPaint = createTextPaint(resources.getColor(R.color.digital_text));
             mMinTempPaint.setTextAlign(Paint.Align.CENTER);
 
-         //  int bitmapId = getIconResourceForWeatherCondition(R.drawable.ic_clear);
-           // bitmap = getIcon(WatchFace.this, bitmapId);
-            bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_clear);
+            int iconId = getIconResourceForWeatherCondition(icon);
+            if (icon !=null) {
+                bitmap = BitmapFactory.decodeResource(resources, iconId);
+            }
+
             mCalendar = Calendar.getInstance();
 
             Intent intent = new Intent(WatchFace.this, WeatherListener.class);
@@ -225,7 +226,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
             mMinTempPaint.setTextSize(textSize - 5);
             mMaxTempPaint.setTextSize(textSize);
-            mTimePaint.setTextSize(textSize + 5);
+            mTimePaint.setTextSize(textSize*2);
 
         }
 
@@ -266,6 +267,12 @@ public class WatchFace extends CanvasWatchFaceService {
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
                 canvas.drawColor(mBackgroundPaint.getColor());
+                if (bitmap != null) {
+                    canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
+                }
+
+                String temps = String.valueOf(highTemp) + " / " + String.valueOf(lowTemp);
+                canvas.drawText(temps, bounds.width()/2 - temps.length(), bounds.height()/2 + mTimePaint.getTextSize(), mMaxTempPaint);
             }
 
             mCalendar.setTimeInMillis(System.currentTimeMillis());
@@ -277,12 +284,9 @@ public class WatchFace extends CanvasWatchFaceService {
 
             canvas.drawText(time, bounds.width()/2, bounds.height()/2, mTimePaint);
 
-            String temps = String.valueOf(highTemp) + " / " + String.valueOf(lowTemp);
-            canvas.drawText(temps, bounds.width()/2 - temps.length(), bounds.height()/2 + mTimePaint.getTextSize(), mMaxTempPaint);
 
-            if (bitmap != null) {
-                canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
-            }
+
+
 
         }
 

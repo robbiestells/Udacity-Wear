@@ -39,7 +39,6 @@ public class WeatherListener extends WearableListenerService {
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.v(LOG_TAG, "DataMap item made it to watch");
 
-
         for (DataEvent event : dataEvents) {
             Uri uri = event.getDataItem().getUri();
             String path = uri.getPath();
