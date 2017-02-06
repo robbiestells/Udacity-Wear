@@ -281,14 +281,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void sendDataToWatch() {
+
+        //create maprequest
         PutDataMapRequest mapRequest = PutDataMapRequest.create("/weather");
         DataMap map = mapRequest.getDataMap();
 
+        //set data
+        long timeMs = System.currentTimeMillis();
         weatherCursor.moveToPosition(0);
         map.putDouble("highTemp", weatherCursor.getDouble(INDEX_WEATHER_MAX_TEMP));
         map.putDouble("lowTemp", weatherCursor.getDouble(INDEX_WEATHER_MIN_TEMP));
         map.putInt("iconID", weatherCursor.getInt(INDEX_WEATHER_CONDITION_ID));
+        map.putLong("time", timeMs);
 
+        //send data
         PutDataRequest request = mapRequest.asPutDataRequest();
 
         request.setUrgent();

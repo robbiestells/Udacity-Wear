@@ -1,7 +1,5 @@
 package com.example.wear;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,38 +10,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.VectorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.ContextCompat;
-import android.support.wearable.view.WatchViewStub;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
-import android.view.View;
 import android.view.WindowInsets;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import static android.R.attr.centerX;
-import static android.R.attr.centerY;
 
 /**
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
@@ -64,14 +44,12 @@ public class WatchFace extends CanvasWatchFaceService {
      * Handler message id for updating the time periodically in interactive mode.
      */
     private static final int MSG_UPDATE_TIME = 0;
-//    public static final String ACTION_WEATHER_CHANGED = "ACTION_WEATHER_CHANGED";
-
 
     static Resources resources;
     public static double highTemp = 0;
     public static double lowTemp = 0;
     public static Integer icon = null;
-    public static Bitmap weatherImage = null;
+    public static long timeSent;
 
     @Override
     public Engine onCreateEngine() {
@@ -105,7 +83,6 @@ public class WatchFace extends CanvasWatchFaceService {
         private Paint mBackgroundPaint;
         private Paint mTimePaint;
         private Paint mMaxTempPaint;
-        private  Paint mMinTempPaint;
 
         private boolean mAmbient;
         private Calendar mCalendar;
@@ -122,7 +99,6 @@ public class WatchFace extends CanvasWatchFaceService {
         float mYOffset;
         boolean mLowBitAmbient;
         Bitmap bitmap;
-
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -145,14 +121,6 @@ public class WatchFace extends CanvasWatchFaceService {
 
             mMaxTempPaint = createTextPaint(resources.getColor(R.color.digital_text));
             mMaxTempPaint.setTextAlign(Paint.Align.CENTER);
-
-            mMinTempPaint = createTextPaint(resources.getColor(R.color.digital_text));
-            mMinTempPaint.setTextAlign(Paint.Align.CENTER);
-
-            int iconId = getIconResourceForWeatherCondition(icon);
-            if (icon !=null) {
-                bitmap = BitmapFactory.decodeResource(resources, iconId);
-            }
 
             mCalendar = Calendar.getInstance();
 
@@ -209,7 +177,6 @@ public class WatchFace extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = false;
             WatchFace.this.unregisterReceiver(mTimeZoneReceiver);
-
         }
 
         @Override
@@ -224,10 +191,8 @@ public class WatchFace extends CanvasWatchFaceService {
             float textSize = resources.getDimension(isRound
                     ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
-            mMinTempPaint.setTextSize(textSize - 5);
             mMaxTempPaint.setTextSize(textSize);
             mTimePaint.setTextSize(textSize*2);
-
         }
 
         @Override
@@ -260,18 +225,25 @@ public class WatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            // Draw the background.
+            // Draw the background. If in ambient mode, just show time and a black background
+            //otherwise, add high/low temp and weather icon
             if (isInAmbientMode()) {
                 canvas.drawColor(Color.BLACK);
-
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
                 canvas.drawColor(mBackgroundPaint.getColor());
-                if (bitmap != null) {
-                    canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
+                if (icon !=null) {
+                    int iconId = getIconResourceForWeatherCondition(icon);
+                    bitmap = BitmapFactory.decodeResource(resources, iconId);
+                    if (bitmap != null) {
+                        canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
+                    }
                 }
 
-                String temps = String.valueOf(highTemp) + " / " + String.valueOf(lowTemp);
+                int high = (int)Math.round(highTemp);
+                int low = (int)Math.round(lowTemp);
+
+                String temps = String.valueOf(high) + " / " + String.valueOf(low);
                 canvas.drawText(temps, bounds.width()/2 - temps.length(), bounds.height()/2 + mTimePaint.getTextSize(), mMaxTempPaint);
             }
 
@@ -283,11 +255,6 @@ public class WatchFace extends CanvasWatchFaceService {
                     mCalendar.get(Calendar.MINUTE));
 
             canvas.drawText(time, bounds.width()/2, bounds.height()/2, mTimePaint);
-
-
-
-
-
         }
 
         /**
@@ -323,6 +290,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
     }
 
+    //gets icon based on weatherId
     private int getIconResourceForWeatherCondition(int weatherId) {
         if (weatherId >= 200 && weatherId <= 232) {
             return R.drawable.ic_storm;
@@ -348,16 +316,5 @@ public class WatchFace extends CanvasWatchFaceService {
             return R.drawable.ic_cloudy;
         }
         return R.drawable.ic_clear;
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static Bitmap getIcon(Context context, int resourceId){
-        VectorDrawable vectorDrawable = (VectorDrawable) ContextCompat.getDrawable(context, resourceId);
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth() * 2,
-                vectorDrawable.getIntrinsicHeight() * 2, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        vectorDrawable.draw(canvas);
-        return bitmap;
     }
 }

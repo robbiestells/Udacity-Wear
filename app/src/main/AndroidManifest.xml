@@ -50,6 +50,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
+
         </activity>
 
         <!-- The manifest entry for our SettingsActivity. Each Activity requires a manifest entry -->
@@ -66,7 +67,7 @@
             android:name=".sync.SunshineSyncIntentService"
             android:exported="false" />
 
-        <!-- This is the Service declaration used in conjunction with FirebaseJobDispatcher -->
+        <!-- This is the Service declaration used in conjunction with FirebaseJobDisatcher -->
         <service
             android:name=".sync.SunshineFirebaseJobService"
             android:exported="false">
