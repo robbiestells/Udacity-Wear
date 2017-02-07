@@ -18,15 +18,30 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import java.net.URL;
+
+import static android.R.attr.value;
+import static android.content.ContentValues.TAG;
+import static com.example.android.sunshine.DetailActivity.INDEX_WEATHER_CONDITION_ID;
+import static com.example.android.sunshine.DetailActivity.INDEX_WEATHER_MAX_TEMP;
+import static com.example.android.sunshine.DetailActivity.INDEX_WEATHER_MIN_TEMP;
 
 public class SunshineSyncTask {
 
@@ -103,6 +118,29 @@ public class SunshineSyncTask {
                 if (notificationsEnabled && oneDayPassedSinceLastNotification) {
                     NotificationUtils.notifyUserOfNewWeather(context);
                 }
+
+
+                //send data to watch
+                ContentValues values = weatherValues[0];
+
+                double maxTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP);
+                double minTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP);
+                int iconId = (int) values.get(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID);
+                //create maprequest
+                PutDataMapRequest mapRequest = PutDataMapRequest.create("/weather");
+                DataMap map = mapRequest.getDataMap();
+
+                //set data
+                long timeMs = System.currentTimeMillis();
+                map.putDouble("highTemp", maxTemp);
+                map.putDouble("lowTemp", minTemp);
+                map.putInt("iconID", iconId);
+                map.putLong("time", timeMs);
+
+
+                WatchSyncUtils utils = WatchSyncUtils.getInstance();
+                utils.initialize(context, mapRequest);
+                utils.sendWeatherData();
 
             /* If the code reaches this point, we have successfully performed our sync */
 

@@ -69,10 +69,7 @@ public class MainActivity extends AppCompatActivity implements
      * access the data from our query. If the order of the Strings above changes, these indices
      * must be adjusted to match the order of the Strings.
      */
-    public static final int INDEX_WEATHER_DATE = 0;
-    public static final int INDEX_WEATHER_MAX_TEMP = 1;
-    public static final int INDEX_WEATHER_MIN_TEMP = 2;
-    public static final int INDEX_WEATHER_CONDITION_ID = 3;
+
 
 
     /*
@@ -90,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private ProgressBar mLoadingIndicator;
 
-    public GoogleApiClient googleApiClient;
-    public Cursor weatherCursor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,62 +250,9 @@ public class MainActivity extends AppCompatActivity implements
         if (data.getCount() != 0) showWeatherDataView();
 
 
-        //google api
-        googleApiClient = new GoogleApiClient.Builder(this)
-    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks(){
-
-        @Override
-        public void onConnected(@Nullable Bundle bundle) {
-            weatherCursor = data;
-            sendDataToWatch();
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-
-        }
-    })
-    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener(){
-
-        @Override
-        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        }
-    }).addApi(Wearable.API).build();
-        googleApiClient.connect();
     }
 
-    private void sendDataToWatch() {
 
-        //create maprequest
-        PutDataMapRequest mapRequest = PutDataMapRequest.create("/weather");
-        DataMap map = mapRequest.getDataMap();
-
-        //set data
-        long timeMs = System.currentTimeMillis();
-        weatherCursor.moveToPosition(0);
-        map.putDouble("highTemp", weatherCursor.getDouble(INDEX_WEATHER_MAX_TEMP));
-        map.putDouble("lowTemp", weatherCursor.getDouble(INDEX_WEATHER_MIN_TEMP));
-        map.putInt("iconID", weatherCursor.getInt(INDEX_WEATHER_CONDITION_ID));
-        map.putLong("time", timeMs);
-
-        //send data
-        PutDataRequest request = mapRequest.asPutDataRequest();
-
-        request.setUrgent();
-
-        Wearable.DataApi.putDataItem(googleApiClient, request)
-                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                    @Override
-                    public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
-                        if (dataItemResult.getStatus().isSuccess()){
-                            Log.d(TAG, "Data sent");
-                        } else {
-                            Log.d(TAG, "Data failed to send" + dataItemResult.getStatus().getStatusMessage());
-                        }
-                    }
-                });
-    }
 
     /**
      * Called when a previously created loader is being reset, and thus making its data unavailable.
