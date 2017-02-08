@@ -18,6 +18,7 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -27,6 +28,7 @@ import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
@@ -37,6 +39,7 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.net.URL;
 
+import static android.R.attr.data;
 import static android.R.attr.value;
 import static android.content.ContentValues.TAG;
 import static com.example.android.sunshine.DetailActivity.INDEX_WEATHER_CONDITION_ID;
@@ -120,32 +123,41 @@ public class SunshineSyncTask {
                 }
 
 
+                //google api
+                GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(context).addApi(Wearable.API).build();
+                mGoogleApiClient.connect();
+
                 //send data to watch
                 ContentValues values = weatherValues[0];
+
+                PutDataMapRequest mapRequest = PutDataMapRequest.create("/weather");
+                DataMap map = mapRequest.getDataMap();
 
                 double maxTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP);
                 double minTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP);
                 int iconId = (int) values.get(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID);
-                //create maprequest
-                PutDataMapRequest mapRequest = PutDataMapRequest.create("/weather");
-                DataMap map = mapRequest.getDataMap();
-
-                //set data
                 long timeMs = System.currentTimeMillis();
                 map.putDouble("highTemp", maxTemp);
                 map.putDouble("lowTemp", minTemp);
                 map.putInt("iconID", iconId);
                 map.putLong("time", timeMs);
 
+                PutDataRequest request = mapRequest.asPutDataRequest();
 
-                WatchSyncUtils utils = WatchSyncUtils.getInstance();
-                utils.initialize(context, mapRequest);
-                utils.sendWeatherData();
+                request.setUrgent();
 
-            /* If the code reaches this point, we have successfully performed our sync */
-
+                Wearable.DataApi.putDataItem(mGoogleApiClient, request)
+                        .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                            @Override
+                            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+                                if (dataItemResult.getStatus().isSuccess()) {
+                                    Log.d(TAG, "Data sent");
+                                } else {
+                                    Log.d(TAG, "Data failed to send" + dataItemResult.getStatus().getStatusMessage());
+                                }
+                            }
+                        });
             }
-
         } catch (Exception e) {
             /* Server probably invalid */
             e.printStackTrace();

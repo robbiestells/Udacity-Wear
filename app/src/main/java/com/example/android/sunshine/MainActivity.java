@@ -70,6 +70,11 @@ public class MainActivity extends AppCompatActivity implements
      * must be adjusted to match the order of the Strings.
      */
 
+    public static final int INDEX_WEATHER_DATE = 0;
+    public static final int INDEX_WEATHER_MAX_TEMP = 1;
+    public static final int INDEX_WEATHER_MIN_TEMP = 2;
+    public static final int INDEX_WEATHER_CONDITION_ID = 3;
+
 
 
     /*
@@ -248,11 +253,7 @@ public class MainActivity extends AppCompatActivity implements
         if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
         mRecyclerView.smoothScrollToPosition(mPosition);
         if (data.getCount() != 0) showWeatherDataView();
-
-
     }
-
-
 
     /**
      * Called when a previously created loader is being reset, and thus making its data unavailable.
