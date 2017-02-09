@@ -197,4 +197,5 @@ public class SunshineSyncUtils {
         Intent intentToSyncImmediately = new Intent(context, SunshineSyncIntentService.class);
         context.startService(intentToSyncImmediately);
     }
+
 }

@@ -18,25 +18,32 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import com.example.android.sunshine.R;
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
 
 import static android.R.attr.data;
@@ -121,8 +128,7 @@ public class SunshineSyncTask {
                 if (notificationsEnabled && oneDayPassedSinceLastNotification) {
                     NotificationUtils.notifyUserOfNewWeather(context);
                 }
-
-
+                
                 //google api
                 GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(context).addApi(Wearable.API).build();
                 mGoogleApiClient.connect();
@@ -135,11 +141,16 @@ public class SunshineSyncTask {
 
                 double maxTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP);
                 double minTemp = (double) values.get(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP);
-                int iconId = (int) values.get(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID);
+                int weatherValue = (int) values.get(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID);
+
+                int iconId = getIconResourceForWeatherCondition(weatherValue);
+                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), iconId);
+                Asset asset = createAssetFromBitmap(bitmap);
+
                 long timeMs = System.currentTimeMillis();
                 map.putDouble("highTemp", maxTemp);
                 map.putDouble("lowTemp", minTemp);
-                map.putInt("iconID", iconId);
+                map.putAsset("iconID", asset);
                 map.putLong("time", timeMs);
 
                 PutDataRequest request = mapRequest.asPutDataRequest();
@@ -162,5 +173,37 @@ public class SunshineSyncTask {
             /* Server probably invalid */
             e.printStackTrace();
         }
+    }
+    //gets icon based on weatherId
+    private static int getIconResourceForWeatherCondition(int weatherId) {
+        if (weatherId >= 200 && weatherId <= 232) {
+            return R.drawable.ic_storm;
+        } else if (weatherId >= 300 && weatherId <= 321) {
+            return R.drawable.ic_light_rain;
+        } else if (weatherId >= 500 && weatherId <= 504) {
+            return R.drawable.ic_rain;
+        } else if (weatherId == 511) {
+            return R.drawable.ic_snow;
+        } else if (weatherId >= 520 && weatherId <= 531) {
+            return R.drawable.ic_rain;
+        } else if (weatherId >= 600 && weatherId <= 622) {
+            return R.drawable.ic_snow;
+        } else if (weatherId >= 701 && weatherId <= 761) {
+            return R.drawable.ic_fog;
+        } else if (weatherId == 761 || weatherId == 781) {
+            return R.drawable.ic_storm;
+        } else if (weatherId == 800) {
+            return R.drawable.ic_clear;
+        } else if (weatherId == 801) {
+            return R.drawable.ic_light_clouds;
+        } else if (weatherId >= 802 && weatherId <= 804) {
+            return R.drawable.ic_cloudy;
+        }
+        return R.drawable.ic_clear;
+    }
+    private static Asset createAssetFromBitmap(Bitmap bitmap) {
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+        return Asset.createFromBytes(byteStream.toByteArray());
     }
 }

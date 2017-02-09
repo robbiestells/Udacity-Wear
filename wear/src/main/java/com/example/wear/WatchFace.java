@@ -48,7 +48,8 @@ public class WatchFace extends CanvasWatchFaceService {
     static Resources resources;
     public static double highTemp = 0;
     public static double lowTemp = 0;
-    public static Integer icon = null;
+    // public static Integer icon = null;
+    public static Bitmap icon = null;
     public static long timeSent;
 
     @Override
@@ -192,7 +193,7 @@ public class WatchFace extends CanvasWatchFaceService {
                     ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             mMaxTempPaint.setTextSize(textSize);
-            mTimePaint.setTextSize(textSize*2);
+            mTimePaint.setTextSize(textSize * 2);
         }
 
         @Override
@@ -232,19 +233,16 @@ public class WatchFace extends CanvasWatchFaceService {
             } else {
                 canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
                 canvas.drawColor(mBackgroundPaint.getColor());
-                if (icon !=null) {
-                    int iconId = getIconResourceForWeatherCondition(icon);
-                    bitmap = BitmapFactory.decodeResource(resources, iconId);
-                    if (bitmap != null) {
-                        canvas.drawBitmap(bitmap, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() *2), mBackgroundPaint);
-                    }
+                if (icon != null) {
+                    canvas.drawBitmap(icon, bounds.width() / 2, bounds.height() / 2 - (mTimePaint.getTextSize() * 2), mBackgroundPaint);
                 }
+                if (highTemp != 0 && lowTemp != 0) {
+                    int high = (int) Math.round(highTemp);
+                    int low = (int) Math.round(lowTemp);
 
-                int high = (int)Math.round(highTemp);
-                int low = (int)Math.round(lowTemp);
-
-                String temps = String.valueOf(high) + " / " + String.valueOf(low);
-                canvas.drawText(temps, bounds.width()/2 - temps.length(), bounds.height()/2 + mTimePaint.getTextSize(), mMaxTempPaint);
+                    String temps = String.valueOf(high) + " / " + String.valueOf(low);
+                    canvas.drawText(temps, bounds.width() / 2 - temps.length(), bounds.height() / 2 + mTimePaint.getTextSize(), mMaxTempPaint);
+                }
             }
 
             mCalendar.setTimeInMillis(System.currentTimeMillis());
@@ -254,7 +252,7 @@ public class WatchFace extends CanvasWatchFaceService {
                     : String.format("%d:%02d", mCalendar.get(Calendar.HOUR),
                     mCalendar.get(Calendar.MINUTE));
 
-            canvas.drawText(time, bounds.width()/2, bounds.height()/2, mTimePaint);
+            canvas.drawText(time, bounds.width() / 2, bounds.height() / 2, mTimePaint);
         }
 
         /**
@@ -288,33 +286,5 @@ public class WatchFace extends CanvasWatchFaceService {
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
             }
         }
-    }
-
-    //gets icon based on weatherId
-    private int getIconResourceForWeatherCondition(int weatherId) {
-        if (weatherId >= 200 && weatherId <= 232) {
-            return R.drawable.ic_storm;
-        } else if (weatherId >= 300 && weatherId <= 321) {
-            return R.drawable.ic_light_rain;
-        } else if (weatherId >= 500 && weatherId <= 504) {
-            return R.drawable.ic_rain;
-        } else if (weatherId == 511) {
-            return R.drawable.ic_snow;
-        } else if (weatherId >= 520 && weatherId <= 531) {
-            return R.drawable.ic_rain;
-        } else if (weatherId >= 600 && weatherId <= 622) {
-            return R.drawable.ic_snow;
-        } else if (weatherId >= 701 && weatherId <= 761) {
-            return R.drawable.ic_fog;
-        } else if (weatherId == 761 || weatherId == 781) {
-            return R.drawable.ic_storm;
-        } else if (weatherId == 800) {
-            return R.drawable.ic_clear;
-        } else if (weatherId == 801) {
-            return R.drawable.ic_light_clouds;
-        } else if (weatherId >= 802 && weatherId <= 804) {
-            return R.drawable.ic_cloudy;
-        }
-        return R.drawable.ic_clear;
     }
 }
