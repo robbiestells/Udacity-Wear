@@ -2,7 +2,7 @@
 
 The Udacity Wear Project is an example of how to push data from an Android app to a Wear app. It displays the current time and sends high temp, low temp, and a weather icon from the Sunshine app to the Wear app.
 
-This project was created as the Capstone Project for the Udacity Android Developer Nanodegree program.
+This project was created as part of the Udacity Android Developer Nanodegree program.
 
 ## Submitting an Issue
 
